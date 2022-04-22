@@ -1,0 +1,13 @@
+{
+    "show_terminal_tab": false,
+    "initial_working_directory": "~/Downloads",
+    "editor_theme": "Dracula",
+    "posix_terminal_shell": "zsh",
+    "editor_keybindings": "vim",
+    "font_size_points": 13,
+    "syntax_color_console": true,
+    "console_double_click_select": true,
+    "source_with_echo": true,
+    "jobs_tab_visibility": "shown",
+    "document_author": "Yuchen Li"
+}
