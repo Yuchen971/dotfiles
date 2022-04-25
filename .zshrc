@@ -255,3 +255,26 @@ export FZF_DEFAULT_OPTS='--color=fg:#f8f8f2,bg:#282a36,hl:#bd93f9 --color=fg+:#f
 
 # copypath
 alias copypath='pwd|pbcopy'
+
+# vim
+alias vim='lvim'
+alias v='lvim'
+alias vi='lvim'
+alias nvim='lvim'
+
+function br {
+    local cmd cmd_file code
+    cmd_file=$(mktemp)
+    if broot --outcmd "$cmd_file" "$@"; then
+        cmd=$(<"$cmd_file")
+        rm -f "$cmd_file"
+        eval "$cmd"
+    else
+        code=$?
+        rm -f "$cmd_file"
+        return "$code"
+    fi
+}
+
+# lvim
+export PATH="$HOME/.local/bin:$PATH"

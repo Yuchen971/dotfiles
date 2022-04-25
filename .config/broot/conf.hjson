@@ -157,8 +157,8 @@
     #  execution: nvim +{line} {file}
     {
         invocation: edit
-        shortcut: e
-        execution: "$EDITOR +{line} {file}"
+        shortcut: vim
+        execution: "lvim +{line} {file}"
         leave_broot: false
     }
     {
@@ -201,8 +201,8 @@
         execution: ":close_staging_area"
     }
     {
-        invocation: move_file_to_trash
-        shortcut: x
+        invocation: delete_file_to_trash
+        shortcut: d
         leave_broot: false
         execution: "trash-put {file}"
     }
