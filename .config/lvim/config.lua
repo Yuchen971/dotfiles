@@ -1,12 +1,14 @@
---[[
-lvim is the global options object
+-- general
+-- =========================================
+vim.o.list = true
+vim.o.listchars = "space:·"
+vim.o.wildmenu = true
+lvim.log.level = "warn"
+lvim.format_on_save = true
+lvim.colorscheme = "tokyonight"
+lvim.leader = "space"
 
-Linters should be
-filled in as strings with either
-a global executable or a path to
-an executable
-]]
--- THESE ARE EXAMPLE CONFIGS FEEL FREE TO CHANGE TO WHATEVER YOU WANT
+
 -- Additional Plugins
 lvim.plugins = {
   -- theme tokyonight
@@ -105,15 +107,9 @@ lvim.plugins = {
 
 
 
--- general
-vim.o.list = true
-vim.o.listchars = "space:·"
-vim.o.wildmenu = true
-lvim.log.level = "warn"
-lvim.format_on_save = true
-lvim.colorscheme = "tokyonight"
+
 -- keymappings [view all the defaults by pressing <leader>Lk]
-lvim.leader = "space"
+
 -- add your own keymapping
 lvim.keys.normal_mode = {
   --quit
