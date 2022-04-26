@@ -92,12 +92,20 @@
       :desc "R - %>% operator" "i p" #'then_R_operator
       :desc "R <- operator" "i =" #'R_equal_sign)
 )
-;;(evil-define-key 'ess-mode-map (kbd "S-p") 'then_R_operator)
-;;(evil-define-key 'inferior-ess-mode-map (kbd "S-p") 'then_R_operator)
-;; (map! :after ess-mode-map
-;;       :leader
-;;       :desc "R - %>% operator" "i p" #'then_R_operator
-;;       :desc "R <- operator" "i =" #'R_equal_sign)
+;;; R data view
+;; [ess-R-data-view](https://github.com/myuhe/ess-R-data-view.el)
+
+
+;; snippets C-x C-s
+(setq yas-snippet-dirs (append yas-snippet-dirs
+                               '("~/.doom.d/snippets")))
+
+
+;; drag stuff mode customize with evil mode
+(map! :v "J" #'drag-stuff-down
+      :v "K" #'drag-stuff-up
+      :v "H" #'drag-stuff-left
+      :v "L" #'drag-stuff-right)
 
 ;; To get information about any of these functions/macros, move the cursor over
 ;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').

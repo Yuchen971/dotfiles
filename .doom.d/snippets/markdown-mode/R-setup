@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+# expand-env: ((yas-indent-line 'fixed) (yas-wrap-around-region 'nil))
+# name: R-Setup
+# key: r-setup
+# uuid: r-setup
+# --
+---
+title: '${1:title_name}'
+author: "Yuchen Li"
+date: \"\`r Sys.Date()\`\"
+output:
+    pdf_document: default
+    html_document: default
+urlcolor: blue
+---
+
+\`\`\`{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+library(${2:library_name})
+`%`$0
+\`\`\`

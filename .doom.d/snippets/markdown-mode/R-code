@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: R-Code
+# key: r-code
+# uuid: r-code
+# --
+\`\`\`{r}
+`%`$0
+\`\`\`
