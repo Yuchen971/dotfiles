@@ -244,6 +244,9 @@ eval $(thefuck --alias)
 # rust init
 export PATH="$HOME/.cargo/bin:$PATH"
 
+# emacs
+export PATH="$HOME/.emacs.d/bin:$PATH"
+
 # R
 alias r="radian"
 
