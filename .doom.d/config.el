@@ -1,65 +1,52 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
-;;                                           ,---,                               
-;;         ,---,                           ,--.' |                               
-;;        /_ ./|          ,--,             |  |  :                      ,---,    
-;;  ,---, |  ' :        ,'_ /|             :  :  :                  ,-+-. /  |   
-;; /___/ \.  : |   .--. |  | :     ,---.   :  |  |,--.    ,---.    ,--.'|'   |   
-;;  .  \  \ ,' ' ,'_ /| :  . |    /     \  |  :  '   |   /     \  |   |  ,"' |   
-;;   \  ;  `  ,' |  ' | |  . .   /    / '  |  |   /' :  /    /  | |   | /  | |   
-;;    \  \    '  |  | ' |  | |  .    ' /   '  :  | | | .    ' / | |   | |  | |   
-;;     '  \   |  :  | : ;  ; |  '   ; :__  |  |  ' | : '   ;   /| |   | |  |/    
-;;      \  ;  ;  '  :  `--'   \ '   | '.'| |  :  :_:,' '   |  / | |   | |--'     
-;;       :  \  \ :  ,      .-./ |   :    : |  | ,'     |   :    | |   |/         
-;;        \  ' ;  `--`----'      \   \  /  `--''        \   \  /  '---'          
-;;         `--`                   `----'                 `----'                 
-;;
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Yuchen"
       user-mail-address "liyuchen971225@gmail.com")
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; etc). You can also try 'gd' (or 'C-c c d') to jump to their definition 
-;; and see how they are implemented.
 
-;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;; - `doom-unicode-font' -- for unicode glyphs
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
-;;
-;; See 'C-h v doom-font' for documentation and more examples of what they
-;; accept. For example:
-;; Set fonts
 (setq
  doom-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
  doom-variable-pitch-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
  doom-unicode-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
  doom-big-font (font-spec :family "Hack Nerd Font" :size 24 :weight 'normal)
  )
-;;
-;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
-;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
-;; refresh your font settings. If Emacs still can't find your font, it likely
-;; wasn't installed correctly. Font issues are rarely Doom issues!
 
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-nord
-      display-line-numbers-type 'relative ;; nill, relative, t
-      ;; org mode dir
-      org-directory "~/org/"
-      ;; snippets dir, note: C-x C-s -> pop up snippets
-      yas-snippet-dirs (append yas-snippet-dirs '("~/.doom.d/snippets"))
-      )
+(setq doom-theme 'doom-one)
 
-;; Genral key bindings
+(setq display-line-numbers-type nil)
+
+(map! :leader
+      (:prefix ("=" . "open file")
+       :desc "Edit doom config.org" "c" #'(lambda () (interactive) (find-file "~/.doom.d/config.org"))
+       :desc "Edit doom init.el" "i" #'(lambda () (interactive) (find-file "~/.doom.d/init.el"))
+       ))
+
+(evil-define-command evil-scroll-line-to-almost-top (count)
+  "Scrolls line number COUNT (or the cursor line) to the top of the window."
+  :repeat nil
+  :keep-visual t
+  (interactive "<c>")
+  (evil-save-column
+    (let ((line (or count (line-number-at-pos (point)))))
+      (goto-char (point-min))
+      (forward-line (1- line)))
+    (recenter (+ 3 (max 1 scroll-margin)))))
+
+(evil-define-command evil-scroll-line-to-almost-bottom (count)
+  "Scrolls line number COUNT (or the cursor line) to the bottom of the window."
+  :repeat nil
+  :keep-visual t
+  (interactive "<c>")
+  (evil-save-column
+    (let ((line (or count (line-number-at-pos (point)))))
+      (goto-char (point-min))
+      (forward-line (1- line)))
+    (recenter (- (+ 3 (max 1 scroll-margin))))))
+
+(evil-define-motion evil-move-5-lines-down ()
+  (evil-next-visual-line 5))
+
+(evil-define-motion evil-move-5-lines-up ()
+  (evil-previous-visual-line 5))
+
 (map! :v "J"            #'drag-stuff-down
       :v "K"            #'drag-stuff-up
       :v "H"            #'drag-stuff-left
@@ -67,31 +54,65 @@
       ;; evil avy word search shortcut, note: g s j -> search line
       :n "g SPC"        #'evil-avy-goto-word-1
       ;; use 9 to move to the end of the line
-      :n "9"            #'evil-end-of-line
+      :n "-"            #'evil-end-of-line
+      ;; move
+      :n "C-j"          #'evil-move-5-lines-down
+      :n "C-k"          #'evil-move-5-lines-up
+      :n "zt"           #'evil-scroll-line-to-almost-top
+      :n "zb"           #'evil-scroll-line-to-almost-bottom
       )
 
-;; R_customize
-(after! ess
-      (defun then_R_operator ()
-            "R - %>% operator"
-            (interactive)
-            (just-one-space 1)
-            (insert "%>%")
-            (reindent-then-newline-and-indent))
-      ;; (defun R_equal_sign ()
-      ;;       "R <- operator"
-      ;;       (interactive)
-      ;;       (just-one-space 1)
-      ;;       (insert "<-")
-      ;;       (reindent-then-newline-and-indent))
-      (map!
-      :leader
-      :desc "R - %>% operator" "i p" #'then_R_operator
-      ;; :desc "R <- operator" "i =" #'R_equal_sign)
-))
-;; R data view
-;; [ess-R-data-view](https://github.com/myuhe/ess-R-data-view.el)
-;;
-;; Emacs everywhere
-;; add this to the mac automator
-;; /usr/local/bin/emacsclient --eval "(emacs-everywhere)"
+(add-to-list 'auto-mode-alist
+             '("\\.[rR]md\\'" . poly-gfm+r-mode))
+
+;; map keys for tangle file
+(map! :leader
+      :desc "Org babel tangle" "m E" #'org-babel-tangle)
+
+(setq org-directory "~/Documents/Org"
+    org-hide-emphasis-markers t ;; hide markup indicators
+    )
+
+;; ;; levels font hight
+;; (custom-set-faces
+;;   '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+;;   '(org-level-2 ((t (:inherit outline-2 :height 1.3))))
+;;   '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
+;;   '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
+;;   '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+;; )
+
+(setq yas-snippet-dirs (append yas-snippet-dirs '("~/.doom.d/snippets")))
+
+;; (setq ivy-posframe-display-functions-alist
+;;       '((swiper          . ivy-posframe-display-at-point)
+;;         (complete-symbol . ivy-posframe-display-at-point)
+;;         (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+;;         (t               . ivy-posframe-display)))
+;; (ivy-posframe-mode 1) ; 1 enables posframe-mode, 0 disables it.
+
+;; (use-package! vertico-posframe
+;;   :after 'vertico
+;;   :config (vertico-posframe-mode 1))
+
+(use-package! vundo
+  :custom
+  (vundo-glyph-alist     vundo-unicode-symbols)
+  (vundo-compact-display t)
+  :config
+  (evil-set-initial-state 'vundo-mode 'motion)
+  (add-hook! vundo-mode #'evil-normalize-keymaps)
+  (map! :map vundo-mode-map
+        :m "h" #'vundo-backward
+        :m "l" #'vundo-forward
+        :m "j" #'vundo-next
+        :m "k" #'vundo-previous
+        :m "H" #'vundo-stem-root
+        :m "L" #'vundo-stem-end
+        :m "q" #'vundo-quit
+        :m "C-g" #'vundo-quit
+        :m "RET" #'vundo-confirm)
+  :defer t)
+
+(map! :leader
+      :desc "Visual Undo Tree" "U" #'vundo)

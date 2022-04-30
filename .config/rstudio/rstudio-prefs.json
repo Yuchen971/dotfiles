@@ -9,5 +9,6 @@
     "console_double_click_select": true,
     "source_with_echo": true,
     "jobs_tab_visibility": "shown",
-    "document_author": "Yuchen Li"
+    "document_author": "Yuchen Li",
+    "execution_behavior": "line"
 }

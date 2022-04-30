@@ -14,8 +14,8 @@ output:
 urlcolor: blue
 ---
 
-\`\`\`{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE)
+\`\`\`{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 library(${2:library_name})
 `%`$0
 \`\`\`

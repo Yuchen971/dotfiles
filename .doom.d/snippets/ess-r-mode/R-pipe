@@ -1,0 +1,7 @@
+# -*- mode: ess-r-mode -*-
+# name: R-Pipe
+# key: pipe
+# uuid: r-pipe
+# --
+%>%
+`%`$0

@@ -1,0 +1,276 @@
+#+title: Config
+#+PROPERTY: header-args :tangle config.el
+
+* Table of Contents :toc:
+- [[#general-usage][General Usage]]
+- [[#personal-info][Personal Info]]
+- [[#fonts][Fonts]]
+- [[#themes][Themes]]
+- [[#general-configurations-of-doom-emacs][General Configurations of doom emacs]]
+  - [[#open-specific-files][Open specific files]]
+- [[#packages-configurations][Packages Configurations]]
+  - [[#evil][Evil]]
+  - [[#ess-r][ESS-R]]
+  - [[#emacs-everywhere][emacs-everywhere]]
+  - [[#org-mode][Org-mode]]
+  - [[#visual-settings][Visual settings]]
+  - [[#yas-snippet][Yas-snippet]]
+  - [[#ivy][Ivy]]
+  - [[#vertico][vertico]]
+  - [[#undo][Undo]]
+
+* General Usage
+To get information about any of these functions/macros, move the cursor over the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+This will open documentation for it, including demos of how they are used.
+Alternatively, use `C-h o' to look up a symbol (functions, variables, faces, etc). You can also try 'gd' (or 'C-c c d') to jump to their definition and see how they are implemented.
+* Personal Info
+Some functionality uses this to identify you, e.g. GPG configuration, email clients, file templates and snippets. It is optional.
+
+This are some personal info
+#+begin_src emacs-lisp
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+(setq user-full-name "Yuchen"
+      user-mail-address "liyuchen971225@gmail.com")
+#+end_src
+
+* Fonts
+Doom exposes five (optional) variables for controlling fonts in Doom:
+
+ - `doom-font' -- the primary font to use
+ - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
+ - `doom-big-font' -- used for `doom-big-font-mode'; use this for presentations or streaming.
+ - `doom-unicode-font' -- for unicode glyphs
+ - `doom-serif-font' -- for the `fixed-pitch-serif' face
+
+See 'C-h v doom-font' for documentation and more examples of what they accept. For example: *Set fonts*
+
+If you or Emacs can't find your font, use 'M-x describe-font' to look them up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to refresh your font settings. If Emacs still can't find your font, it likely wasn't installed correctly. Font issues are rarely Doom issues!
+
+#+begin_src emacs-lisp
+(setq
+ doom-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
+ doom-variable-pitch-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
+ doom-unicode-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
+ doom-big-font (font-spec :family "Hack Nerd Font" :size 24 :weight 'normal)
+ )
+#+end_src
+
+* Themes
+There are two ways to load a theme. Both assume the theme is installed and available. You can either set `doom-theme' or manually load a theme with the `load-theme' function.
+
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-one)
+#+end_src
+
+* General Configurations of doom emacs
+This section is the configuration of doom emacs
+
+Display line number will slow down large file editing, the option could be `nil`, `'relative`, `t`
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type nil)
+#+end_src
+
+** Open specific files
+
+`SPC-=-c`: config.org
+`SPC-=-i`: init.el
+
+#+begin_src emacs-lisp
+(map! :leader
+      (:prefix ("=" . "open file")
+       :desc "Edit doom config.org" "c" #'(lambda () (interactive) (find-file "~/.doom.d/config.org"))
+       :desc "Edit doom init.el" "i" #'(lambda () (interactive) (find-file "~/.doom.d/init.el"))
+       ))
+#+end_src
+
+* Packages Configurations
+** Evil
+The new motions need to be defined first
+*** New motions
+
+For the `zt` and `zb` in evil mode, leave several lines at the top (bottom)
+
+#+begin_src emacs-lisp
+(evil-define-command evil-scroll-line-to-almost-top (count)
+  "Scrolls line number COUNT (or the cursor line) to the top of the window."
+  :repeat nil
+  :keep-visual t
+  (interactive "<c>")
+  (evil-save-column
+    (let ((line (or count (line-number-at-pos (point)))))
+      (goto-char (point-min))
+      (forward-line (1- line)))
+    (recenter (+ 3 (max 1 scroll-margin)))))
+
+(evil-define-command evil-scroll-line-to-almost-bottom (count)
+  "Scrolls line number COUNT (or the cursor line) to the bottom of the window."
+  :repeat nil
+  :keep-visual t
+  (interactive "<c>")
+  (evil-save-column
+    (let ((line (or count (line-number-at-pos (point)))))
+      (goto-char (point-min))
+      (forward-line (1- line)))
+    (recenter (- (+ 3 (max 1 scroll-margin))))))
+#+end_src
+
+Use `C-j` and `C-k` to move several line up and down
+
+#+begin_src emacs-lisp
+(evil-define-motion evil-move-5-lines-down ()
+  (evil-next-visual-line 5))
+
+(evil-define-motion evil-move-5-lines-up ()
+  (evil-previous-visual-line 5))
+#+end_src
+
+*** Keybindings
+
+This section is to map the evil key bindings
+
+Note:
+- `g-s-j` search lines downward
+- In the visual model, the mode, use `J`, `K`, `H`, `L` to drag things around.
+- Use `g-SPC` to quick search words
+- Use `-` to replace `$`
+
+#+begin_src emacs-lisp
+(map! :v "J"            #'drag-stuff-down
+      :v "K"            #'drag-stuff-up
+      :v "H"            #'drag-stuff-left
+      :v "L"            #'drag-stuff-right
+      ;; evil avy word search shortcut, note: g s j -> search line
+      :n "g SPC"        #'evil-avy-goto-word-1
+      ;; use 9 to move to the end of the line
+      :n "-"            #'evil-end-of-line
+      ;; move
+      :n "C-j"          #'evil-move-5-lines-down
+      :n "C-k"          #'evil-move-5-lines-up
+      :n "zt"           #'evil-scroll-line-to-almost-top
+      :n "zb"           #'evil-scroll-line-to-almost-bottom
+      )
+
+#+end_src
+
+This section is for all package configuration and usage
+** ESS-R
+
+ESS-R package needs to config .Rprofile, sometimes the terminal stuck because of the continue code setting in the R. So make sure the continues code symbol is set to nil
+If it happens, use `C-c C-c` to refresh it
+
+Associate the new poly mode to `.Rmd` files
+
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist
+             '("\\.[rR]md\\'" . poly-gfm+r-mode))
+#+end_src
+
+** emacs-everywhere
+
+Add this to the mac automator, make it as service.
+go to Settings -> keyboard -> shortcut -> service and enable a global shortcut to it.
+
+#+begin_src shell :tangle no
+/usr/local/bin/emacsclient --eval "(emacs-everywhere)"
+#+end_src
+
+** Org-mode
+*** Org-mode general settings
+
+#+begin_src emacs-lisp
+;; map keys for tangle file
+(map! :leader
+      :desc "Org babel tangle" "m E" #'org-babel-tangle)
+
+(setq org-directory "~/Documents/Org"
+    org-hide-emphasis-markers t ;; hide markup indicators
+    )
+#+end_src
+
+** Visual settings
+
+#+begin_src emacs-lisp
+;; ;; levels font hight
+;; (custom-set-faces
+;;   '(org-level-1 ((t (:inherit outline-1 :height 1.4))))
+;;   '(org-level-2 ((t (:inherit outline-2 :height 1.3))))
+;;   '(org-level-3 ((t (:inherit outline-3 :height 1.2))))
+;;   '(org-level-4 ((t (:inherit outline-4 :height 1.1))))
+;;   '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
+;; )
+#+end_src
+
+
+** Yas-snippet
+
+Note:
+- `C-x C-s` pop up snippets
+
+Set the directory
+#+begin_src emacs-lisp
+(setq yas-snippet-dirs (append yas-snippet-dirs '("~/.doom.d/snippets")))
+#+end_src
+** Ivy
+
+posframe config
+
+#+begin_src emacs-lisp
+;; (setq ivy-posframe-display-functions-alist
+;;       '((swiper          . ivy-posframe-display-at-point)
+;;         (complete-symbol . ivy-posframe-display-at-point)
+;;         (counsel-M-x     . ivy-posframe-display-at-window-bottom-left)
+;;         (t               . ivy-posframe-display)))
+;; (ivy-posframe-mode 1) ; 1 enables posframe-mode, 0 disables it.
+#+end_src
+
+** vertico
+
+posframe
+
+#+begin_src emacs-lisp
+;; (use-package! vertico-posframe
+;;   :after 'vertico
+;;   :config (vertico-posframe-mode 1))
+#+end_src
+** Undo
+
+testing: use vundo
+
+| Key | Description                                           |
+|-----+-------------------------------------------------------|
+| =l=   | to go forward                                         |
+| =h=   | to go backward                                        |
+| =j=   | to go to the node below when you at a branching point |
+| =k=   | to go to the node above                               |
+| =H=   | to go back to the last branching point                |
+| =L=   | to go forward to the end/tip of the branch            |
+| =q=   | to quit, you can also type C-g                        |
+
+#+begin_src emacs-lisp
+(use-package! vundo
+  :custom
+  (vundo-glyph-alist     vundo-unicode-symbols)
+  (vundo-compact-display t)
+  :config
+  (evil-set-initial-state 'vundo-mode 'motion)
+  (add-hook! vundo-mode #'evil-normalize-keymaps)
+  (map! :map vundo-mode-map
+        :m "h" #'vundo-backward
+        :m "l" #'vundo-forward
+        :m "j" #'vundo-next
+        :m "k" #'vundo-previous
+        :m "H" #'vundo-stem-root
+        :m "L" #'vundo-stem-end
+        :m "q" #'vundo-quit
+        :m "C-g" #'vundo-quit
+        :m "RET" #'vundo-confirm)
+  :defer t)
+#+end_src
+
+Set an entry point.
+
+#+begin_src emacs-lisp
+(map! :leader
+      :desc "Visual Undo Tree" "U" #'vundo)
+#+end_src
