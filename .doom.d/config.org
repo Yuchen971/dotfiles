@@ -7,7 +7,10 @@
 - [[#fonts][Fonts]]
 - [[#themes][Themes]]
 - [[#general-configurations-of-doom-emacs][General Configurations of doom emacs]]
+  - [[#split-windows][split windows]]
+  - [[#line-numbers][line numbers]]
   - [[#open-specific-files][Open specific files]]
+  - [[#delete-files][Delete files]]
 - [[#packages-configurations][Packages Configurations]]
   - [[#evil][Evil]]
   - [[#ess-r][ESS-R]]
@@ -16,8 +19,9 @@
   - [[#visual-settings][Visual settings]]
   - [[#yas-snippet][Yas-snippet]]
   - [[#ivy][Ivy]]
-  - [[#vertico][vertico]]
+  - [[#vertico][Vertico]]
   - [[#undo][Undo]]
+  - [[#company][Company]]
 
 * General Usage
 To get information about any of these functions/macros, move the cursor over the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
@@ -59,11 +63,21 @@ If you or Emacs can't find your font, use 'M-x describe-font' to look them up, `
 There are two ways to load a theme. Both assume the theme is installed and available. You can either set `doom-theme' or manually load a theme with the `load-theme' function.
 
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-dracula)
 #+end_src
 
 * General Configurations of doom emacs
 This section is the configuration of doom emacs
+** split windows
+
+focus new window after splitting
+
+#+begin_src emacs-lisp
+(setq evil-split-window-below t
+      evil-vsplit-window-right t)
+#+end_src
+
+** line numbers
 
 Display line number will slow down large file editing, the option could be `nil`, `'relative`, `t`
 
@@ -82,6 +96,15 @@ Display line number will slow down large file editing, the option could be `nil`
        :desc "Edit doom config.org" "c" #'(lambda () (interactive) (find-file "~/.doom.d/config.org"))
        :desc "Edit doom init.el" "i" #'(lambda () (interactive) (find-file "~/.doom.d/init.el"))
        ))
+#+end_src
+
+** Delete files
+
+delete files by moving to the trash
+
+#+begin_src emacs-lisp
+(setq-default
+ delete-by-moving-to-trash t)
 #+end_src
 
 * Packages Configurations
@@ -166,6 +189,24 @@ Associate the new poly mode to `.Rmd` files
              '("\\.[rR]md\\'" . poly-gfm+r-mode))
 #+end_src
 
+syntax highlight
+
+#+begin_src emacs-lisp
+(setq ess-R-font-lock-keywords
+      '((ess-R-fl-keyword:keywords . t)
+        (ess-R-fl-keyword:constants . t)
+        (ess-R-fl-keyword:modifiers . t)
+        (ess-R-fl-keyword:fun-defs . t)
+        (ess-R-fl-keyword:assign-ops . t)
+        (ess-R-fl-keyword:%op% . t)
+        (ess-fl-keyword:fun-calls . t)
+        (ess-fl-keyword:numbers . t)
+        (ess-fl-keyword:operators . t)
+        (ess-fl-keyword:delimiters . t)
+        (ess-fl-keyword:= . t)
+        (ess-R-fl-keyword:F&T . t)))
+#+end_src
+
 ** emacs-everywhere
 
 Add this to the mac automator, make it as service.
@@ -178,16 +219,27 @@ go to Settings -> keyboard -> shortcut -> service and enable a global shortcut t
 ** Org-mode
 *** Org-mode general settings
 
+map keys for tangle file
+
 #+begin_src emacs-lisp
-;; map keys for tangle file
 (map! :leader
       :desc "Org babel tangle" "m E" #'org-babel-tangle)
+#+end_src
 
+org notes directory
+
+#+begin_src emacs-lisp
 (setq org-directory "~/Documents/Org"
     org-hide-emphasis-markers t ;; hide markup indicators
     )
 #+end_src
 
+just show two levels
+
+#+begin_src emacs-lisp
+(after! org
+  (setq org-startup-folded 'show2levels))
+#+end_src
 ** Visual settings
 
 #+begin_src emacs-lisp
@@ -200,7 +252,6 @@ go to Settings -> keyboard -> shortcut -> service and enable a global shortcut t
 ;;   '(org-level-5 ((t (:inherit outline-5 :height 1.0))))
 ;; )
 #+end_src
-
 
 ** Yas-snippet
 
@@ -224,7 +275,7 @@ posframe config
 ;; (ivy-posframe-mode 1) ; 1 enables posframe-mode, 0 disables it.
 #+end_src
 
-** vertico
+** Vertico
 
 posframe
 
@@ -233,19 +284,29 @@ posframe
 ;;   :after 'vertico
 ;;   :config (vertico-posframe-mode 1))
 #+end_src
+
 ** Undo
 
-testing: use vundo
+Undo settings for doom emacs
+
+#+begin_src emacs-lisp
+(setq undo-limit 80000000                         ; Raise undo-limit to 80Mb
+      auto-save-default t                         ; Nobody likes to loose work, I certainly don't
+      truncate-string-ellipsis "…"                ; Unicode ellispis are nicer than "...", and also save /precious/ space
+      scroll-margin 2)                            ; It's nice to maintain a little margin
+#+end_src
+
+use vundo, NOTE: may be added to the default master branch
 
 | Key | Description                                           |
 |-----+-------------------------------------------------------|
-| =l=   | to go forward                                         |
-| =h=   | to go backward                                        |
-| =j=   | to go to the node below when you at a branching point |
-| =k=   | to go to the node above                               |
-| =H=   | to go back to the last branching point                |
-| =L=   | to go forward to the end/tip of the branch            |
-| =q=   | to quit, you can also type C-g                        |
+| =l= | to go forward                                         |
+| =h= | to go backward                                        |
+| =j= | to go to the node below when you at a branching point |
+| =k= | to go to the node above                               |
+| =H= | to go back to the last branching point                |
+| =L= | to go forward to the end/tip of the branch            |
+| =q= | to quit, you can also type C-g                        |
 
 #+begin_src emacs-lisp
 (use-package! vundo
@@ -274,3 +335,32 @@ Set an entry point.
 (map! :leader
       :desc "Visual Undo Tree" "U" #'vundo)
 #+end_src
+** Company
+
+General setting
+
+ #+begin_src emacs-lisp
+(after! company
+  (setq company-idle-delay 0.5 ;; delay time
+        company-minimum-prefix-length 2) ;; start with 2 letters
+  )
+ #+end_src
+
+ set company backen
+
+ #+begin_src emacs-lisp
+(set-company-backend!
+  '(text-mode
+    markdown-mode
+    gfm-mode)
+  '(:seperate
+    company-ispell
+    company-files
+    company-yasnippet))
+ #+end_src
+
+ set ess-r with company
+
+ #+begin_src emacs-lisp
+(set-company-backend! 'ess-r-mode '(company-R-args company-R-objects company-dabbrev-code :separate))
+ #+end_src

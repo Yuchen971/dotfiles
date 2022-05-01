@@ -9,7 +9,10 @@
  doom-big-font (font-spec :family "Hack Nerd Font" :size 24 :weight 'normal)
  )
 
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-dracula)
+
+(setq evil-split-window-below t
+      evil-vsplit-window-right t)
 
 (setq display-line-numbers-type nil)
 
@@ -18,6 +21,9 @@
        :desc "Edit doom config.org" "c" #'(lambda () (interactive) (find-file "~/.doom.d/config.org"))
        :desc "Edit doom init.el" "i" #'(lambda () (interactive) (find-file "~/.doom.d/init.el"))
        ))
+
+(setq-default
+ delete-by-moving-to-trash t)
 
 (evil-define-command evil-scroll-line-to-almost-top (count)
   "Scrolls line number COUNT (or the cursor line) to the top of the window."
@@ -65,13 +71,29 @@
 (add-to-list 'auto-mode-alist
              '("\\.[rR]md\\'" . poly-gfm+r-mode))
 
-;; map keys for tangle file
+(setq ess-R-font-lock-keywords
+      '((ess-R-fl-keyword:keywords . t)
+        (ess-R-fl-keyword:constants . t)
+        (ess-R-fl-keyword:modifiers . t)
+        (ess-R-fl-keyword:fun-defs . t)
+        (ess-R-fl-keyword:assign-ops . t)
+        (ess-R-fl-keyword:%op% . t)
+        (ess-fl-keyword:fun-calls . t)
+        (ess-fl-keyword:numbers . t)
+        (ess-fl-keyword:operators . t)
+        (ess-fl-keyword:delimiters . t)
+        (ess-fl-keyword:= . t)
+        (ess-R-fl-keyword:F&T . t)))
+
 (map! :leader
       :desc "Org babel tangle" "m E" #'org-babel-tangle)
 
 (setq org-directory "~/Documents/Org"
     org-hide-emphasis-markers t ;; hide markup indicators
     )
+
+(after! org
+  (setq org-startup-folded 'show2levels))
 
 ;; ;; levels font hight
 ;; (custom-set-faces
@@ -95,6 +117,11 @@
 ;;   :after 'vertico
 ;;   :config (vertico-posframe-mode 1))
 
+(setq undo-limit 80000000                         ; Raise undo-limit to 80Mb
+      auto-save-default t                         ; Nobody likes to loose work, I certainly don't
+      truncate-string-ellipsis "…"                ; Unicode ellispis are nicer than "...", and also save /precious/ space
+      scroll-margin 2)                            ; It's nice to maintain a little margin
+
 (use-package! vundo
   :custom
   (vundo-glyph-alist     vundo-unicode-symbols)
@@ -116,3 +143,19 @@
 
 (map! :leader
       :desc "Visual Undo Tree" "U" #'vundo)
+
+(after! company
+  (setq company-idle-delay 0.5 ;; delay time
+        company-minimum-prefix-length 2) ;; start with 2 letters
+  )
+
+(set-company-backend!
+  '(text-mode
+    markdown-mode
+    gfm-mode)
+  '(:seperate
+    company-ispell
+    company-files
+    company-yasnippet))
+
+(set-company-backend! 'ess-r-mode '(company-R-args company-R-objects company-dabbrev-code :separate))
