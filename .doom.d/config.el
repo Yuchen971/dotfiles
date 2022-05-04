@@ -25,6 +25,17 @@
 (setq-default
  delete-by-moving-to-trash t)
 
+;; Add frame borders and window dividers
+(modify-all-frames-parameters
+ '((right-divider-width . 10)
+   (internal-border-width . 10)))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(set-face-background 'fringe (face-attribute 'default :background))
+
 (evil-define-command evil-scroll-line-to-almost-top (count)
   "Scrolls line number COUNT (or the cursor line) to the top of the window."
   :repeat nil
@@ -58,7 +69,7 @@
       :v "H"            #'drag-stuff-left
       :v "L"            #'drag-stuff-right
       ;; evil avy word search shortcut, note: g s j -> search line
-      :n "g SPC"        #'evil-avy-goto-word-1
+      :n "g SPC"        #'evil-avy-goto-char-2
       ;; use 9 to move to the end of the line
       :n "-"            #'evil-end-of-line
       ;; move
@@ -70,30 +81,38 @@
 
 (add-to-list 'auto-mode-alist
              '("\\.[rR]md\\'" . poly-gfm+r-mode))
+(setq
+   ess-style 'RStudio
+   ess-offset-continued 2
+   ess-expression-offset 0)
 
-(setq ess-R-font-lock-keywords
-      '((ess-R-fl-keyword:keywords . t)
-        (ess-R-fl-keyword:constants . t)
-        (ess-R-fl-keyword:modifiers . t)
-        (ess-R-fl-keyword:fun-defs . t)
-        (ess-R-fl-keyword:assign-ops . t)
-        (ess-R-fl-keyword:%op% . t)
-        (ess-fl-keyword:fun-calls . t)
-        (ess-fl-keyword:numbers . t)
-        (ess-fl-keyword:operators . t)
-        (ess-fl-keyword:delimiters . t)
-        (ess-fl-keyword:= . t)
-        (ess-R-fl-keyword:F&T . t)))
+;; (setq ess-R-font-lock-keywords
+;;       '((ess-R-fl-keyword:keywords . t)
+;;         (ess-R-fl-keyword:constants . t)
+;;         (ess-R-fl-keyword:modifiers . t)
+;;         (ess-R-fl-keyword:fun-defs . t)
+;;         (ess-R-fl-keyword:assign-ops . t)
+;;         (ess-R-fl-keyword:%op% . t)
+;;         (ess-fl-keyword:fun-calls . t)
+;;         (ess-fl-keyword:numbers . t)
+;;         (ess-fl-keyword:operators . t)
+;;         (ess-fl-keyword:delimiters . t)
+;;         (ess-fl-keyword:= . t)
+;;         (ess-R-fl-keyword:F&T . t)))
 
 (map! :leader
       :desc "Org babel tangle" "m E" #'org-babel-tangle)
 
 (setq org-directory "~/Documents/Org"
     org-hide-emphasis-markers t ;; hide markup indicators
+    org-ellipsis "…"
+    org-pretty-entities t
     )
 
 (after! org
   (setq org-startup-folded 'show2levels))
+
+(add-hook 'org-mode-hook #'org-modern-mode)
 
 ;; ;; levels font hight
 ;; (custom-set-faces
@@ -159,3 +178,14 @@
     company-yasnippet))
 
 (set-company-backend! 'ess-r-mode '(company-R-args company-R-objects company-dabbrev-code :separate))
+
+(let ((alternatives '("doom-emacs-color.png"
+                      "doom-emacs-colo2r.png"
+                      "doom-emacs-slant-out-bw.png"
+                      )))
+  (setq fancy-splash-image
+        (concat doom-private-dir "img/"
+                (nth (random (length alternatives)) alternatives))))
+
+;; (require 'loadhist)
+;; (file-dependents (feature-file 'cl))

@@ -11,6 +11,7 @@
   - [[#line-numbers][line numbers]]
   - [[#open-specific-files][Open specific files]]
   - [[#delete-files][Delete files]]
+  - [[#add-frame-boarder][Add frame boarder]]
 - [[#packages-configurations][Packages Configurations]]
   - [[#evil][Evil]]
   - [[#ess-r][ESS-R]]
@@ -22,6 +23,9 @@
   - [[#vertico][Vertico]]
   - [[#undo][Undo]]
   - [[#company][Company]]
+  - [[#dashboard][Dashboard]]
+  - [[#modeline][Modeline]]
+- [[#test][Test]]
 
 * General Usage
 To get information about any of these functions/macros, move the cursor over the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
@@ -67,7 +71,6 @@ There are two ways to load a theme. Both assume the theme is installed and avail
 #+end_src
 
 * General Configurations of doom emacs
-This section is the configuration of doom emacs
 ** split windows
 
 focus new window after splitting
@@ -105,6 +108,20 @@ delete files by moving to the trash
 #+begin_src emacs-lisp
 (setq-default
  delete-by-moving-to-trash t)
+#+end_src
+** Add frame boarder
+
+#+begin_src emacs-lisp
+;; Add frame borders and window dividers
+(modify-all-frames-parameters
+ '((right-divider-width . 10)
+   (internal-border-width . 10)))
+(dolist (face '(window-divider
+                window-divider-first-pixel
+                window-divider-last-pixel))
+  (face-spec-reset-face face)
+  (set-face-foreground face (face-attribute 'default :background)))
+(set-face-background 'fringe (face-attribute 'default :background))
 #+end_src
 
 * Packages Configurations
@@ -164,7 +181,7 @@ Note:
       :v "H"            #'drag-stuff-left
       :v "L"            #'drag-stuff-right
       ;; evil avy word search shortcut, note: g s j -> search line
-      :n "g SPC"        #'evil-avy-goto-word-1
+      :n "g SPC"        #'evil-avy-goto-char-2
       ;; use 9 to move to the end of the line
       :n "-"            #'evil-end-of-line
       ;; move
@@ -182,29 +199,34 @@ This section is for all package configuration and usage
 ESS-R package needs to config .Rprofile, sometimes the terminal stuck because of the continue code setting in the R. So make sure the continues code symbol is set to nil
 If it happens, use `C-c C-c` to refresh it
 
-Associate the new poly mode to `.Rmd` files
+Associate the new poly mode to `.Rmd` files and set styles
 
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist
              '("\\.[rR]md\\'" . poly-gfm+r-mode))
+(setq
+   ess-style 'RStudio
+   ess-offset-continued 2
+   ess-expression-offset 0)
 #+end_src
 
-syntax highlight
+syntax highlight, following code will lead to jit-lock--run-function error,
+instead of doing this,manually toggle the lock font function in the ess menue bar.
 
 #+begin_src emacs-lisp
-(setq ess-R-font-lock-keywords
-      '((ess-R-fl-keyword:keywords . t)
-        (ess-R-fl-keyword:constants . t)
-        (ess-R-fl-keyword:modifiers . t)
-        (ess-R-fl-keyword:fun-defs . t)
-        (ess-R-fl-keyword:assign-ops . t)
-        (ess-R-fl-keyword:%op% . t)
-        (ess-fl-keyword:fun-calls . t)
-        (ess-fl-keyword:numbers . t)
-        (ess-fl-keyword:operators . t)
-        (ess-fl-keyword:delimiters . t)
-        (ess-fl-keyword:= . t)
-        (ess-R-fl-keyword:F&T . t)))
+;; (setq ess-R-font-lock-keywords
+;;       '((ess-R-fl-keyword:keywords . t)
+;;         (ess-R-fl-keyword:constants . t)
+;;         (ess-R-fl-keyword:modifiers . t)
+;;         (ess-R-fl-keyword:fun-defs . t)
+;;         (ess-R-fl-keyword:assign-ops . t)
+;;         (ess-R-fl-keyword:%op% . t)
+;;         (ess-fl-keyword:fun-calls . t)
+;;         (ess-fl-keyword:numbers . t)
+;;         (ess-fl-keyword:operators . t)
+;;         (ess-fl-keyword:delimiters . t)
+;;         (ess-fl-keyword:= . t)
+;;         (ess-R-fl-keyword:F&T . t)))
 #+end_src
 
 ** emacs-everywhere
@@ -226,11 +248,13 @@ map keys for tangle file
       :desc "Org babel tangle" "m E" #'org-babel-tangle)
 #+end_src
 
-org notes directory
+misc and some visual settings
 
 #+begin_src emacs-lisp
 (setq org-directory "~/Documents/Org"
     org-hide-emphasis-markers t ;; hide markup indicators
+    org-ellipsis "…"
+    org-pretty-entities t
     )
 #+end_src
 
@@ -240,6 +264,17 @@ just show two levels
 (after! org
   (setq org-startup-folded 'show2levels))
 #+end_src
+
+*** Org Modern
+
+use package org modern
+
+#+begin_src emacs-lisp
+(add-hook 'org-mode-hook #'org-modern-mode)
+
+
+#+end_src
+
 ** Visual settings
 
 #+begin_src emacs-lisp
@@ -300,13 +335,13 @@ use vundo, NOTE: may be added to the default master branch
 
 | Key | Description                                           |
 |-----+-------------------------------------------------------|
-| =l= | to go forward                                         |
-| =h= | to go backward                                        |
-| =j= | to go to the node below when you at a branching point |
-| =k= | to go to the node above                               |
-| =H= | to go back to the last branching point                |
-| =L= | to go forward to the end/tip of the branch            |
-| =q= | to quit, you can also type C-g                        |
+| =l=   | to go forward                                         |
+| =h=   | to go backward                                        |
+| =j=   | to go to the node below when you at a branching point |
+| =k=   | to go to the node above                               |
+| =H=   | to go back to the last branching point                |
+| =L=   | to go forward to the end/tip of the branch            |
+| =q=   | to quit, you can also type C-g                        |
 
 #+begin_src emacs-lisp
 (use-package! vundo
@@ -364,3 +399,30 @@ General setting
  #+begin_src emacs-lisp
 (set-company-backend! 'ess-r-mode '(company-R-args company-R-objects company-dabbrev-code :separate))
  #+end_src
+** Dashboard
+
+set alternatives randomly
+
+#+begin_src emacs-lisp
+(let ((alternatives '("doom-emacs-color.png"
+                      "doom-emacs-colo2r.png"
+                      "doom-emacs-slant-out-bw.png"
+                      )))
+  (setq fancy-splash-image
+        (concat doom-private-dir "img/"
+                (nth (random (length alternatives)) alternatives))))
+#+end_src
+** Modeline
+
+
+* Test
+
+For the error "package cl is deprecated"
+
+ #+begin_src emacs-lisp
+;; (require 'loadhist)
+;; (file-dependents (feature-file 'cl))
+ #+end_src
+
+ #+RESULTS:
+ | /Users/yuchenli/.emacs.d/.local/autoloads.28.1.elc | /Users/yuchenli/.emacs.d/.local/straight/build-28.1/list-utils/list-utils.elc | /Users/yuchenli/.emacs.d/.local/straight/build-28.1/persistent-soft/persistent-soft.elc |
