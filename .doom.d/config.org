@@ -13,6 +13,7 @@
   - [[#delete-files][Delete files]]
   - [[#add-frame-boarder][Add frame boarder]]
   - [[#spell-check][Spell check]]
+  - [[#buffer-name][Buffer name]]
 - [[#packages-configurations][Packages Configurations]]
   - [[#evil][Evil]]
   - [[#ess-r][ESS-R]]
@@ -33,9 +34,10 @@ To get information about any of these functions/macros, move the cursor over the
 This will open documentation for it, including demos of how they are used.
 Alternatively, use `C-h o' to look up a symbol (functions, variables, faces, etc). You can also try 'gd' (or 'C-c c d') to jump to their definition and see how they are implemented.
 * Personal Info
-Some functionality uses this to identify you, e.g. GPG configuration, email clients, file templates and snippets. It is optional.
 
+Some functionality uses this to identify you, e.g. GPG configuration, email clients, file templates and snippets. It is optional.
 This are some personal info
+
 #+begin_src emacs-lisp
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 (setq user-full-name "Yuchen"
@@ -57,10 +59,10 @@ If you or Emacs can't find your font, use 'M-x describe-font' to look them up, `
 
 #+begin_src emacs-lisp
 (setq
- doom-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-variable-pitch-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-unicode-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-big-font (font-spec :family "Hack Nerd Font" :size 24 :weight 'normal)
+ doom-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-variable-pitch-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-unicode-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-big-font (font-spec :family "Fira Code" :size 24 :weight 'normal)
  )
 #+end_src
 
@@ -91,8 +93,8 @@ Display line number will slow down large file editing, the option could be `nil`
 
 ** Open specific files
 
-`SPC-=-c`: config.org
-`SPC-=-i`: init.el
+`SPC-c`: config.org
+`SPC-i`: init.el
 
 #+begin_src emacs-lisp
 (map! :leader
@@ -110,6 +112,7 @@ delete files by moving to the trash
 (setq-default
  delete-by-moving-to-trash t)
 #+end_src
+
 ** Add frame boarder
 
 #+begin_src emacs-lisp
@@ -124,12 +127,20 @@ delete files by moving to the trash
   (set-face-foreground face (face-attribute 'default :background)))
 (set-face-background 'fringe (face-attribute 'default :background))
 #+end_src
+
 ** Spell check
 
 disable spell check globally, toggle it with `SPC t s`
 
 #+begin_src emacs-lisp
 (remove-hook 'text-mode-hook #'spell-fu-mode)
+#+end_src
+
+** Buffer name
+
+#+begin_src emacs-lisp
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
 #+end_src
 
 * Packages Configurations
@@ -196,6 +207,9 @@ Note:
       :n "C-k"          #'evil-move-5-lines-up
       :n "zt"           #'evil-scroll-line-to-almost-top
       :n "zb"           #'evil-scroll-line-to-almost-bottom
+      ;; use j k to go the the visual line, not the actual line
+      :n "j"            #'evil-next-visual-line
+      :n "k"            #'evil-previous-visual-line
       )
 
 #+end_src
@@ -321,6 +335,7 @@ Set the directory
 #+begin_src emacs-lisp
 (setq yas-snippet-dirs (append yas-snippet-dirs '("~/.doom.d/snippets")))
 #+end_src
+
 ** Ivy
 
 posframe config
@@ -423,6 +438,7 @@ General setting
  #+begin_src emacs-lisp
 (set-company-backend! 'ess-r-mode '(company-R-args company-R-objects company-dabbrev-code :separate))
  #+end_src
+
 ** Dashboard
 
 set splash img
@@ -632,6 +648,26 @@ test
 
 ** Modeline
 
+change the color of unsaved files
+
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+#+end_src
+
+dont show the LF UTF-8 which is useless
+
+#+begin_src emacs-lisp
+(defun doom-modeline-conditional-buffer-encoding ()
+  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
+  (setq-local doom-modeline-buffer-encoding
+              (unless (and (memq (plist-get (coding-system-plist buffer-file-coding-system) :category)
+                                 '(coding-category-undecided coding-category-utf-8))
+                           (not (memq (coding-system-eol-type buffer-file-coding-system) '(1 2))))
+                t)))
+
+(add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
+#+end_src
 
 * Test
 

@@ -3,10 +3,10 @@
       user-mail-address "liyuchen971225@gmail.com")
 
 (setq
- doom-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-variable-pitch-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-unicode-font (font-spec :family "Hack Nerd Font" :size 20 :weight 'normal)
- doom-big-font (font-spec :family "Hack Nerd Font" :size 24 :weight 'normal)
+ doom-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-variable-pitch-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-unicode-font (font-spec :family "Fira Code" :size 20 :weight 'normal)
+ doom-big-font (font-spec :family "Fira Code" :size 24 :weight 'normal)
  )
 
 (setq doom-theme 'doom-dracula)
@@ -37,6 +37,9 @@
 (set-face-background 'fringe (face-attribute 'default :background))
 
 (remove-hook 'text-mode-hook #'spell-fu-mode)
+
+(setq doom-fallback-buffer-name "► Doom"
+      +doom-dashboard-name "► Doom")
 
 (evil-define-command evil-scroll-line-to-almost-top (count)
   "Scrolls line number COUNT (or the cursor line) to the top of the window."
@@ -79,6 +82,9 @@
       :n "C-k"          #'evil-move-5-lines-up
       :n "zt"           #'evil-scroll-line-to-almost-top
       :n "zb"           #'evil-scroll-line-to-almost-bottom
+      ;; use j k to go the the visual line, not the actual line
+      :n "j"            #'evil-next-visual-line
+      :n "k"            #'evil-previous-visual-line
       )
 
 (setq evil-normal-state-cursor '(box "light blue")
@@ -380,6 +386,19 @@
 (remove-hook '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
 (add-hook! '+doom-dashboard-mode-hook (hide-mode-line-mode 1) (hl-line-mode -1))
 (setq-hook! '+doom-dashboard-mode-hook evil-normal-state-cursor (list nil))
+
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+
+(defun doom-modeline-conditional-buffer-encoding ()
+  "We expect the encoding to be LF UTF-8, so only show the modeline when this is not the case"
+  (setq-local doom-modeline-buffer-encoding
+              (unless (and (memq (plist-get (coding-system-plist buffer-file-coding-system) :category)
+                                 '(coding-category-undecided coding-category-utf-8))
+                           (not (memq (coding-system-eol-type buffer-file-coding-system) '(1 2))))
+                t)))
+
+(add-hook 'after-change-major-mode-hook #'doom-modeline-conditional-buffer-encoding)
 
 ;; (require 'loadhist)
 ;; (file-dependents (feature-file 'cl))
